@@ -3,7 +3,7 @@ import time
 
 # Set up GPIO
 GPIO.setmode(GPIO.BCM)
-FOOT_SWITCH_PIN = 17
+FOOT_SWITCH_PIN = 27
 
 # Set up the pin as an input with a pull-down resistor
 GPIO.setup(FOOT_SWITCH_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
