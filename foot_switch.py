@@ -1,8 +1,8 @@
 from gpiozero import Button
 from signal import pause
 
-# Set up the foot switch with an explicit pull-down resistor
-foot_switch = Button(22, pull_up=False, pull_down=True)
+# Set up the foot switch with pull-up disabled (relying on external pull-down resistor)
+foot_switch = Button(22, pull_up=False)
 
 def foot_switch_pressed():
     print("Foot switch pressed!")
