@@ -1,25 +1,14 @@
-import RPi.GPIO as GPIO
-import time
+from gpiozero import Button
+from signal import pause
 
-# Set up GPIO
-GPIO.setmode(GPIO.BCM)
-FOOT_SWITCH_PIN = 27
+# Set up the foot switch
+foot_switch = Button(27)
 
-# Set up the pin as an input with a pull-down resistor
-GPIO.setup(FOOT_SWITCH_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
-def foot_switch_callback(channel):
+def foot_switch_pressed():
     print("Foot switch pressed!")
 
-# Set up an event detection on the foot switch pin
-GPIO.add_event_detect(FOOT_SWITCH_PIN, GPIO.RISING, callback=foot_switch_callback, bouncetime=200)
+# Attach the callback function to the button press
+foot_switch.when_pressed = foot_switch_pressed
 
-try:
-    while True:
-        time.sleep(0.1)  # Main loop doing nothing, just waiting for the interrupt
-
-except KeyboardInterrupt:
-    print("Exiting program")
-
-finally:
-    GPIO.cleanup()
+print("Waiting for foot switch press...")
+pause()  # Keep the script running
