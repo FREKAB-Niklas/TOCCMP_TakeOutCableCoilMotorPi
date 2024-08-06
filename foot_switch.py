@@ -1,33 +1,39 @@
 import RPi.GPIO as GPIO
 import time
 
-# Set up GPIO
+# Set up the GPIO mode
 GPIO.setmode(GPIO.BCM)
-FOOT_SWITCH_PIN = 17  # Change to GPIO 22
 
-# Set up the pin as an input with a pull-down resistor
-GPIO.setup(FOOT_SWITCH_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+# Set up GPIO 17 as an output
+relay_pin = 17
+GPIO.setup(relay_pin, GPIO.OUT)
 
-def foot_switch_callback(channel):
-    print("Foot switch pressed!")
+# Function to turn on the relay
+def turn_on_relay():
+    GPIO.output(relay_pin, GPIO.HIGH)
+    print("Relay is ON")
 
-try:
-    # Set up an event detection on the foot switch pin
-    GPIO.add_event_detect(FOOT_SWITCH_PIN, GPIO.RISING, callback=foot_switch_callback, bouncetime=200)
-    print("Edge detection added successfully")
+# Function to turn off the relay
+def turn_off_relay():
+    GPIO.output(relay_pin, GPIO.LOW)
+    print("Relay is OFF")
 
-    print("Waiting for foot switch press...")
-    while True:
-        if GPIO.input(FOOT_SWITCH_PIN) == GPIO.HIGH:
-            print("Foot switch pressed! (while loop detection)")
-        time.sleep(0.1)  # Main loop doing nothing, just waiting for the interrupt
+# Main function
+if __name__ == "__main__":
+    try:
+        # Turn on the relay
+        turn_on_relay()
+        
+        # Keep the relay on for 5 seconds
+        time.sleep(5)
+        
+        # Turn off the relay
+        turn_off_relay()
+        
+    except KeyboardInterrupt:
+        print("Exiting gracefully")
+        
+    finally:
+        # Cleanup the GPIO settings before exiting
+        GPIO.cleanup()
 
-except RuntimeError as e:
-    print(f"RuntimeError: {e}")
-
-except KeyboardInterrupt:
-    print("Exiting program")
-
-finally:
-    GPIO.cleanup()
-    print("GPIO cleaned up")
