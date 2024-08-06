@@ -25,7 +25,7 @@ if __name__ == "__main__":
         turn_on_relay()
         
         # Keep the relay on for 5 seconds
-        time.sleep(5)
+        time.sleep(20)
         
         # Turn off the relay
         turn_off_relay()
