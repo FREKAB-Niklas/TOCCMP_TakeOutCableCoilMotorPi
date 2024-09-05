@@ -11,10 +11,6 @@ ENABLE_PIN = 12   # Enable pin
 START_BUTTON = 5  # Start button
 STOP_BUTTON = 6   # Stop button
 
-# Motor-specific delays (in seconds)
-DELAY_M1 = 0.005  # Adjust this value for Motor 1 speed
-DELAY_M2 = 0.001   # Adjust this value for Motor 2 speed
-
 # GPIO setup
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(DIR_PIN_M1, GPIO.OUT)
@@ -64,15 +60,15 @@ try:
             
             GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Enable the motor
             while GPIO.input(STOP_BUTTON) == GPIO.HIGH:
-                move_motor_steps(1, GPIO.HIGH, STEP_PIN_M2, DIR_PIN_M2, DELAY_M2)
+                move_motor_steps(1, GPIO.HIGH, STEP_PIN_M2, DIR_PIN_M2, 0.001)
             
             print("Stop button pressed. Moving M2 backward 1000 steps.")
-            move_motor_steps(1000, GPIO.LOW, STEP_PIN_M2, DIR_PIN_M2, DELAY_M2)
+            move_motor_steps(1000, GPIO.LOW, STEP_PIN_M2, DIR_PIN_M2, 0.001)
             GPIO.output(ENABLE_PIN, GPIO.LOW)  # Disable the motor
             
         else:
             print("Short press detected. Moving Motor 1 forward 1000 steps.")
-            move_motor_steps(1000, GPIO.HIGH, STEP_PIN_M1, DIR_PIN_M1, DELAY_M1)
+            move_motor_steps(1000, GPIO.HIGH, STEP_PIN_M1, DIR_PIN_M1, 0.001)
         
         print("Sequence completed. Waiting for next button press.")
         
