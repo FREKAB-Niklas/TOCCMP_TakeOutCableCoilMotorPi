@@ -13,13 +13,19 @@ GPIO.setup(BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 print("Waiting for button press...")
 
 try:
+    button_pressed = False
     while True:
-        # Wait for the button to be pressed (input goes LOW)
-        GPIO.wait_for_edge(BUTTON_PIN, GPIO.FALLING)
-        print("Button pressed!")
+        # Check if button is pressed (input goes LOW)
+        if GPIO.input(BUTTON_PIN) == GPIO.LOW and not button_pressed:
+            print("Button pressed!")
+            button_pressed = True
         
-        # Add a small delay to avoid multiple detections
-        time.sleep(0.2)
+        # Check if button is released (input goes HIGH)
+        elif GPIO.input(BUTTON_PIN) == GPIO.HIGH and button_pressed:
+            button_pressed = False
+        
+        # Add a small delay to reduce CPU usage
+        time.sleep(0.01)
 
 except KeyboardInterrupt:
     print("Script terminated by user")
