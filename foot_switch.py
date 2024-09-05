@@ -54,10 +54,10 @@ try:
     while True:
         print("Waiting for button press...")
         while GPIO.input(START_BUTTON) == GPIO.HIGH:
-            time.sleep(0.01)
+            time.sleep(1)
         
         print("Start button pressed. Waiting to check for double press...")
-        time.sleep(0.1)  # Wait a bit to check for double press
+        time.sleep(1)  # Wait a bit to check for double press
         
         if check_double_press(START_BUTTON):
             print("Double press detected. Performing reset sequence.")
@@ -78,7 +78,7 @@ try:
         
         # Wait for button release
         while GPIO.input(START_BUTTON) == GPIO.LOW:
-            time.sleep(0.1)
+            time.sleep(1)
 
 except KeyboardInterrupt:
     print("Program interrupted!")
