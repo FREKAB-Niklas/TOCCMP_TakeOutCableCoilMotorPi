@@ -31,11 +31,7 @@ def move_motor_step(direction, step_pin, dir_pin, delay):
     time.sleep(delay)
     GPIO.output(step_pin, GPIO.LOW)
     time.sleep(delay)
-
-# Function to move the motor a specific number of steps
-def move_motor_steps(steps, direction, step_pin, dir_pin, delay):
-    for _ in range(steps):
-        move_motor_step(direction, step_pin, dir_pin, delay)
+    print(f"Motor step: DIR={direction}, STEP={step_pin}")  # Debug print
 
 try:
     print("Press the start button (GPIO 5) to begin the sequence.")
@@ -43,7 +39,7 @@ try:
     print("Press Ctrl+C to exit.")
 
     # Enable the motors
-    GPIO.output(ENABLE_PIN, GPIO.HIGH)
+    GPIO.output(ENABLE_PIN, GPIO.LOW)  # Changed to LOW to enable
     print("Motors enabled.")
 
     while True:
@@ -55,13 +51,20 @@ try:
         print("Start button pressed. Moving M2 forward until stop button is pressed.")
         
         # Move M2 forward until stop button is pressed
+        step_count = 0
         while GPIO.input(STOP_BUTTON) == GPIO.HIGH:
             move_motor_step(GPIO.HIGH, STEP_PIN_M2, DIR_PIN_M2, 0.005)
+            step_count += 1
+            if step_count % 100 == 0:
+                print(f"Forward steps: {step_count}")
         
         print("Stop button pressed. Moving M2 backward 100 steps.")
         
         # Move M2 backward 100 steps
-        move_motor_steps(100, GPIO.LOW, STEP_PIN_M2, DIR_PIN_M2, 0.005)
+        for i in range(100):
+            move_motor_step(GPIO.LOW, STEP_PIN_M2, DIR_PIN_M2, 0.005)
+            if i % 10 == 0:
+                print(f"Backward steps: {i+1}")
         
         print("Sequence completed. Press the start button again to repeat.")
         
@@ -74,7 +77,7 @@ except KeyboardInterrupt:
 
 finally:
     # Disable the motors
-    GPIO.output(ENABLE_PIN, GPIO.LOW)
+    GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Changed to HIGH to disable
     print("Motors disabled.")
     GPIO.cleanup()
     print("GPIO cleanup done.")
