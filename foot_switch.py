@@ -1,39 +1,30 @@
 import RPi.GPIO as GPIO
 import time
 
-# Set up the GPIO mode
+# Set up GPIO mode
 GPIO.setmode(GPIO.BCM)
 
-# Set up GPIO 17 as an output
-relay_pin = 17
-GPIO.setup(relay_pin, GPIO.OUT)
+# Define the GPIO pin for the button
+BUTTON_PIN = 17
 
-# Function to turn on the relay
-def turn_on_relay():
-    GPIO.output(relay_pin, GPIO.HIGH)
-    print("Relay is ON")
+# Set up the button pin as an input with a pull-up resistor
+GPIO.setup(BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-# Function to turn off the relay
-def turn_off_relay():
-    GPIO.output(relay_pin, GPIO.LOW)
-    print("Relay is OFF")
+print("Waiting for button press...")
 
-# Main function
-if __name__ == "__main__":
-    try:
-        # Turn on the relay
-        turn_on_relay()
+try:
+    while True:
+        # Wait for the button to be pressed (input goes LOW)
+        GPIO.wait_for_edge(BUTTON_PIN, GPIO.FALLING)
+        print("Button pressed!")
         
-        # Keep the relay on for 5 seconds
-        time.sleep(20)
-        
-        # Turn off the relay
-        turn_off_relay()
-        
-    except KeyboardInterrupt:
-        print("Exiting gracefully")
-        
-    finally:
-        # Cleanup the GPIO settings before exiting
-        GPIO.cleanup()
+        # Add a small delay to avoid multiple detections
+        time.sleep(0.2)
+
+except KeyboardInterrupt:
+    print("Script terminated by user")
+
+finally:
+    # Clean up GPIO on exit
+    GPIO.cleanup()
 
