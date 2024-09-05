@@ -26,7 +26,7 @@ GPIO.setup(START_BUTTON, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(STOP_BUTTON, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 def move_motor_steps(steps, direction, step_pin, dir_pin, delay):
-    GPIO.output(ENABLE_PIN, GPIO.LOW)  # Enable the motor (LOW is enable for most drivers)
+    GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Enable the motor
     print(f"Motor enabled. Moving {'forward' if direction == GPIO.HIGH else 'backward'} for {steps} steps.")
     
     GPIO.output(dir_pin, direction)
@@ -36,7 +36,7 @@ def move_motor_steps(steps, direction, step_pin, dir_pin, delay):
         GPIO.output(step_pin, GPIO.LOW)
         time.sleep(delay)
     
-    GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Disable the motor
+    GPIO.output(ENABLE_PIN, GPIO.LOW)  # Disable the motor
     print("Movement completed. Motor disabled.")
 
 def check_long_press(button_pin, duration=3):
@@ -53,8 +53,6 @@ try:
     print("Press the stop button (GPIO 6) to stop Motor 2 during long press function.")
     print("Press Ctrl+C to exit.")
 
-    GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Ensure motors are disabled at start
-
     while True:
         print("Waiting for button press...")
         while GPIO.input(START_BUTTON) == GPIO.HIGH:
@@ -64,13 +62,13 @@ try:
         if check_long_press(START_BUTTON):
             print("Long press detected. Running Motor 2 until stop button is pressed.")
             
-            GPIO.output(ENABLE_PIN, GPIO.LOW)  # Enable the motor
+            GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Enable the motor
             while GPIO.input(STOP_BUTTON) == GPIO.HIGH:
                 move_motor_steps(1, GPIO.HIGH, STEP_PIN_M2, DIR_PIN_M2, DELAY_M2)
             
             print("Stop button pressed. Moving M2 backward 1000 steps.")
             move_motor_steps(1000, GPIO.LOW, STEP_PIN_M2, DIR_PIN_M2, DELAY_M2)
-            GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Disable the motor
+            GPIO.output(ENABLE_PIN, GPIO.LOW)  # Disable the motor
             
         else:
             print("Short press detected. Moving Motor 1 forward 1000 steps.")
@@ -86,6 +84,6 @@ except KeyboardInterrupt:
     print("Program interrupted!")
 
 finally:
-    GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Ensure motor is disabled
+    GPIO.output(ENABLE_PIN, GPIO.LOW)  # Ensure motor is disabled
     GPIO.cleanup()
     print("GPIO cleanup done.")
