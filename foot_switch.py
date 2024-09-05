@@ -44,15 +44,15 @@ try:
     print("Motors enabled.")
 
     while True:
-        # Run M2 backwards until the start button is pressed
-        print("Running M2 backwards. Press the start button to stop and begin the sequence.")
+        # Run M2 forwards until the start button is pressed
+        print("Running M2 forwards. Press the start button to stop and begin the sequence.")
         while GPIO.input(START_BUTTON) == GPIO.HIGH:
-            move_motor_step(GPIO.LOW, STEP_PIN_M2, DIR_PIN_M2, 0.005)
+            move_motor_step(GPIO.HIGH, STEP_PIN_M2, DIR_PIN_M2, 0.005)
 
-        print("Start button pressed. Stopping M2 and moving forward 100 steps.")
+        print("Start button pressed. Stopping M2 and moving backward 100 steps.")
         
-        # Move M2 forward 100 steps
-        move_motor_steps(100, GPIO.HIGH, STEP_PIN_M2, DIR_PIN_M2, 0.005)
+        # Move M2 backward 100 steps
+        move_motor_steps(100, GPIO.LOW, STEP_PIN_M2, DIR_PIN_M2, 0.005)
         
         print("Sequence completed. Press the start button again to repeat.")
         
