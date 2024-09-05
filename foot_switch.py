@@ -69,7 +69,7 @@ try:
             
         else:
             print("Short press detected. Moving Motor 1 forward 1000 steps.")
-            move_motor_steps(1000, GPIO.HIGH, STEP_PIN_M1, DIR_PIN_M1, 0.001)
+            move_motor_steps(1000, GPIO.HIGH, STEP_PIN_M1, DIR_PIN_M1, 0.01)
         
         print("Sequence completed. Waiting for next button press.")
         
