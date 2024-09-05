@@ -35,11 +35,7 @@ def move_motor_step(direction, step_pin, dir_pin, delay):
 # Function to move the motor a specific number of steps
 def move_motor_steps(steps, direction, step_pin, dir_pin, delay):
     for _ in range(steps):
-        if GPIO.input(STOP_BUTTON) == GPIO.LOW:
-            print("Stop button pressed. Interrupting movement.")
-            return False
         move_motor_step(direction, step_pin, dir_pin, delay)
-    return True
 
 try:
     print("Press the start button (GPIO 5) to begin the sequence.")
@@ -51,26 +47,26 @@ try:
     print("Motors enabled.")
 
     while True:
-        # Run M2 forwards until the start button or stop button is pressed
-        print("Running M2 forwards. Press the start button to begin the sequence or stop button to stop.")
-        while GPIO.input(START_BUTTON) == GPIO.HIGH and GPIO.input(STOP_BUTTON) == GPIO.HIGH:
+        # Wait for start button press
+        print("Waiting for start button press...")
+        while GPIO.input(START_BUTTON) == GPIO.HIGH:
+            time.sleep(0.01)
+        
+        print("Start button pressed. Moving M2 forward until stop button is pressed.")
+        
+        # Move M2 forward until stop button is pressed
+        while GPIO.input(STOP_BUTTON) == GPIO.HIGH:
             move_motor_step(GPIO.HIGH, STEP_PIN_M2, DIR_PIN_M2, 0.005)
-
-        if GPIO.input(STOP_BUTTON) == GPIO.LOW:
-            print("Stop button pressed. Stopping M2.")
-            time.sleep(0.5)  # Debounce delay
-            continue
-
-        print("Start button pressed. Stopping M2 and moving backward 100 steps.")
+        
+        print("Stop button pressed. Moving M2 backward 100 steps.")
         
         # Move M2 backward 100 steps
-        if move_motor_steps(100, GPIO.LOW, STEP_PIN_M2, DIR_PIN_M2, 0.005):
-            print("Sequence completed. Press the start button again to repeat.")
-        else:
-            print("Sequence interrupted. Press the start button to restart.")
+        move_motor_steps(100, GPIO.LOW, STEP_PIN_M2, DIR_PIN_M2, 0.005)
         
-        # Wait for button release to avoid immediate repeat
-        while GPIO.input(START_BUTTON) == GPIO.LOW and GPIO.input(STOP_BUTTON) == GPIO.HIGH:
+        print("Sequence completed. Press the start button again to repeat.")
+        
+        # Wait for both buttons to be released
+        while GPIO.input(START_BUTTON) == GPIO.LOW or GPIO.input(STOP_BUTTON) == GPIO.LOW:
             time.sleep(0.1)
 
 except KeyboardInterrupt:
