@@ -50,7 +50,7 @@ try:
         
         print("Stop button pressed. Moving M2 backward 100 steps.")
         
-        for i in range(100):
+        for i in range(1000):
             move_motor_step(GPIO.LOW, STEP_PIN_M2, DIR_PIN_M2, 0.001)  # Faster pulse
             if i % 10 == 0:
                 print(f"Backward steps: {i+1}")
