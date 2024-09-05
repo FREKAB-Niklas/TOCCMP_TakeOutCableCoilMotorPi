@@ -27,11 +27,16 @@ def move_motor_step(direction, step_pin, dir_pin, delay):
     time.sleep(delay)
     GPIO.output(step_pin, GPIO.LOW)
     time.sleep(delay)
-    print(f"Motor step: DIR={'Forward' if direction else 'Backward'}, STEP={step_pin}")
+    print(f"Motor step: DIR={'Forward' if direction == GPIO.HIGH else 'Backward'}, STEP={step_pin}")
 
 def move_motor_steps(steps, direction, step_pin, dir_pin, delay):
+    GPIO.output(dir_pin, direction)  # Set direction before loop
     for _ in range(steps):
-        move_motor_step(direction, step_pin, dir_pin, delay)
+        GPIO.output(step_pin, GPIO.HIGH)
+        time.sleep(delay)
+        GPIO.output(step_pin, GPIO.LOW)
+        time.sleep(delay)
+    print(f"Moved {steps} steps: DIR={'Forward' if direction == GPIO.HIGH else 'Backward'}, STEP={step_pin}")
 
 def check_long_press(button_pin, duration=3):
     start_time = time.time()
@@ -62,14 +67,14 @@ try:
             
             # Move M2 forward until stop button is pressed
             while GPIO.input(STOP_BUTTON) == GPIO.HIGH:
-                move_motor_step(GPIO.HIGH, STEP_PIN_M2, DIR_PIN_M2, 0.001)
+                move_motor_step(GPIO.HIGH, STEP_PIN_M2, DIR_PIN_M2, 0.0005)
             
             print("Stop button pressed. Moving M2 backward 1000 steps.")
-            move_motor_steps(1000, GPIO.LOW, STEP_PIN_M2, DIR_PIN_M2, 0.001)
+            move_motor_steps(1000, GPIO.LOW, STEP_PIN_M2, DIR_PIN_M2, 0.0005)
             
         else:
             print("Short press detected. Moving Motor 1 forward 1000 steps.")
-            move_motor_steps(1000, GPIO.HIGH, STEP_PIN_M1, DIR_PIN_M1, 0.01)
+            move_motor_steps(1000, GPIO.HIGH, STEP_PIN_M1, DIR_PIN_M1, 0.0005)
         
         print("Sequence completed. Waiting for next button press.")
         
