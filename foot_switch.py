@@ -60,15 +60,15 @@ try:
             
             GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Enable the motor
             while GPIO.input(STOP_BUTTON) == GPIO.HIGH:
-                move_motor_steps(1, GPIO.HIGH, STEP_PIN_M2, DIR_PIN_M2, 0.005)
+                move_motor_steps(1, GPIO.HIGH, STEP_PIN_M2, DIR_PIN_M2, 0.001)
             
             print("Stop button pressed. Moving M2 backward 1000 steps.")
-            move_motor_steps(1000, GPIO.LOW, STEP_PIN_M2, DIR_PIN_M2, 0.005)
+            move_motor_steps(1000, GPIO.LOW, STEP_PIN_M2, DIR_PIN_M2, 0.001)
             GPIO.output(ENABLE_PIN, GPIO.LOW)  # Disable the motor
             
         else:
             print("Short press detected. Moving Motor 1 forward 1000 steps.")
-            move_motor_steps(1000, GPIO.HIGH, STEP_PIN_M1, DIR_PIN_M1, 0.005)
+            move_motor_steps(1000, GPIO.HIGH, STEP_PIN_M1, DIR_PIN_M1, 0.001)
         
         print("Sequence completed. Waiting for next button press.")
         
