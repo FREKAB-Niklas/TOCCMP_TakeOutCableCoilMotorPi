@@ -42,9 +42,9 @@ def check_long_press(button_pin, duration=3):
     return False
 
 try:
-    print("Press the start button (GPIO 5) briefly to run Motor 2 for 1000 steps forward.")
-    print("Hold the start button for 3 seconds to trigger the reset function.")
-    print("Press the stop button (GPIO 6) at any time to stop Motor 2 during reset.")
+    print("Press the start button (GPIO 5) briefly to run Motor 1 for 1000 steps forward.")
+    print("Hold the start button for 3 seconds to trigger Motor 2 reset function.")
+    print("Press the stop button (GPIO 6) to stop Motor 2 during long press function.")
     print("Press Ctrl+C to exit.")
 
     # Enable the motor driver
@@ -58,19 +58,18 @@ try:
         
         print("Start button pressed. Checking for long press...")
         if check_long_press(START_BUTTON):
-            print("Long press detected. Performing reset sequence.")
+            print("Long press detected. Running Motor 2 until stop button is pressed.")
             
-            # Move M2 backward until stop button is pressed
-            print("Moving M2 backward until stop button is pressed.")
+            # Move M2 forward until stop button is pressed
             while GPIO.input(STOP_BUTTON) == GPIO.HIGH:
-                move_motor_step(GPIO.LOW, STEP_PIN_M2, DIR_PIN_M2, 0.001)
+                move_motor_step(GPIO.HIGH, STEP_PIN_M2, DIR_PIN_M2, 0.001)
             
-            print("Stop button pressed. Moving M2 forward 100 steps.")
-            move_motor_steps(100, GPIO.HIGH, STEP_PIN_M2, DIR_PIN_M2, 0.001)
+            print("Stop button pressed. Moving M2 backward 1000 steps.")
+            move_motor_steps(1000, GPIO.LOW, STEP_PIN_M2, DIR_PIN_M2, 0.001)
             
         else:
-            print("Short press detected. Moving Motor 2 forward 1000 steps.")
-            move_motor_steps(1000, GPIO.HIGH, STEP_PIN_M2, DIR_PIN_M2, 0.001)
+            print("Short press detected. Moving Motor 1 forward 1000 steps.")
+            move_motor_steps(1000, GPIO.HIGH, STEP_PIN_M1, DIR_PIN_M1, 0.001)
         
         print("Sequence completed. Waiting for next button press.")
         
