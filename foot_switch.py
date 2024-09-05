@@ -1,37 +1,55 @@
-import RPi.GPIO as GPIO
 import time
-import signal
-import sys
+import RPi.GPIO as GPIO
 
-# Disable GPIO warnings
-GPIO.setwarnings(False)
+# GPIO pin setup for the first motor
+DIR_PIN = 13   # Direction pin
+STEP_PIN = 19  # Step pin
+ENABLE_PIN = 12  # Enable pin
 
-# GPIO pin setup
-PUL = 17  # Pulse pin
-DIR = 27  # Direction pin
-
+# GPIO setup
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(PUL, GPIO.OUT)
-GPIO.setup(DIR, GPIO.OUT)
+GPIO.setup(DIR_PIN, GPIO.OUT)
+GPIO.setup(STEP_PIN, GPIO.OUT)
+GPIO.setup(ENABLE_PIN, GPIO.OUT)
 
-# Set direction
-GPIO.output(DIR, GPIO.HIGH)  # Change to GPIO.LOW for opposite direction
-print("Direction set to HIGH")
+# Function to move the motor
+def move_motor(steps, direction, delay):
+    # Enable the motor by setting ENABLE_PIN to HIGH
+    GPIO.output(ENABLE_PIN, GPIO.HIGH)
+    print(f"Motor enabled. Moving {'forward' if direction == GPIO.HIGH else 'backward'} for {steps} steps.")
 
-# Number of steps
-steps = 1600
+    # Set the direction
+    GPIO.output(DIR_PIN, direction)
+    
+    # Move the motor
+    for i in range(steps):
+        GPIO.output(STEP_PIN, GPIO.HIGH)
+        time.sleep(delay)
+        GPIO.output(STEP_PIN, GPIO.LOW)
+        time.sleep(delay)
+        
+        if i % 100 == 0:  # Print every 100 steps for more concise output
+            print(f"Step {i+1}/{steps}")
+
+    print("Movement completed.")
+    
+    # (Optional) Disable the motor after moving
+    GPIO.output(ENABLE_PIN, GPIO.LOW)
+    print("Motor disabled.")
 
 try:
-    for i in range(steps):
-        GPIO.output(PUL, GPIO.HIGH)
-        print(f"Step {i+1}: PUL HIGH")
-        time.sleep(0.01)  # Slower pulse for easier observation
-        GPIO.output(PUL, GPIO.LOW)
-        print(f"Step {i+1}: PUL LOW")
-        time.sleep(0.01)
+    # Move motor forward 1000 steps
+    print("Starting motor test...")
+    move_motor(steps=1000, direction=GPIO.HIGH, delay=0.005)
+    
+    time.sleep(1)  # Wait for 1 second
+    
+    # Move motor backward 1000 steps
+    move_motor(steps=1000, direction=GPIO.LOW, delay=0.005)
+
 except KeyboardInterrupt:
-    print("Script interrupted by user")
+    print("Program interrupted!")
+
 finally:
     GPIO.cleanup()
-    print("GPIO cleanup complete")
-
+    print("GPIO cleanup done.")
