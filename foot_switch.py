@@ -7,7 +7,7 @@ GPIO.setwarnings(False)
 # GPIO pin setup
 PUL = 17  # Pulse pin
 DIR = 27  # Direction pin
-BUTTON_PIN = 22  # New pin for the button
+BUTTON_PIN = 22  # Button pin
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(PUL, GPIO.OUT)
@@ -32,8 +32,10 @@ try:
             # Run motor
             for i in range(steps):
                 GPIO.output(PUL, GPIO.HIGH)
+                print(f"Step {i+1}: PUL HIGH")
                 time.sleep(0.01)  # Slower pulse for easier observation
                 GPIO.output(PUL, GPIO.LOW)
+                print(f"Step {i+1}: PUL LOW")
                 time.sleep(0.01)
             
             print("Motor sequence complete")
