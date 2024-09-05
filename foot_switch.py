@@ -4,11 +4,15 @@ import RPi.GPIO as GPIO
 # GPIO pin setup for the first motor
 DIR_PIN_M1 = 13   # Direction pin
 STEP_PIN_M1 = 19  # Step pin
-ENABLE_PIN = 12  # Enable pin
+ENABLE_PIN = 12   # Enable pin
 
 # GPIO pin setup for the second motor
 DIR_PIN_M2 = 24   # Direction pin
 STEP_PIN_M2 = 18  # Step pin
+
+# GPIO pin setup for buttons
+BUTTON_FORWARD = 5  # Button for forward movement
+BUTTON_REVERSE = 6  # Button for reverse movement
 
 # GPIO setup
 GPIO.setmode(GPIO.BCM)
@@ -17,6 +21,8 @@ GPIO.setup(STEP_PIN_M1, GPIO.OUT)
 GPIO.setup(DIR_PIN_M2, GPIO.OUT)
 GPIO.setup(STEP_PIN_M2, GPIO.OUT)
 GPIO.setup(ENABLE_PIN, GPIO.OUT)
+GPIO.setup(BUTTON_FORWARD, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(BUTTON_REVERSE, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Function to move the motor
 def move_motor(steps, direction, step_pin, dir_pin, delay):
@@ -44,15 +50,22 @@ def move_motor(steps, direction, step_pin, dir_pin, delay):
     print("Motor disabled.")
 
 try:
-    # Move M1 motor forward 1000 steps
-    print("Starting M1 motor test...")
-    move_motor(steps=1000, direction=GPIO.HIGH, step_pin=STEP_PIN_M1, dir_pin=DIR_PIN_M1, delay=0.005)
-    
-    time.sleep(1)  # Wait for 1 second
-    
-    # Move M2 motor backward 1000 steps
-    print("Starting M2 motor test...")
-    move_motor(steps=1000, direction=GPIO.LOW, step_pin=STEP_PIN_M2, dir_pin=DIR_PIN_M2, delay=0.005)
+    print("Press the forward button (GPIO 5) to move M1 forward.")
+    print("Press the reverse button (GPIO 6) to move M1 backward.")
+    print("Press Ctrl+C to exit.")
+
+    while True:
+        if GPIO.input(BUTTON_FORWARD) == GPIO.LOW:
+            print("Forward button pressed. Moving M1 forward...")
+            move_motor(steps=1000, direction=GPIO.HIGH, step_pin=STEP_PIN_M1, dir_pin=DIR_PIN_M1, delay=0.005)
+            time.sleep(0.5)  # Debounce delay
+        
+        if GPIO.input(BUTTON_REVERSE) == GPIO.LOW:
+            print("Reverse button pressed. Moving M1 backward...")
+            move_motor(steps=1000, direction=GPIO.LOW, step_pin=STEP_PIN_M1, dir_pin=DIR_PIN_M1, delay=0.005)
+            time.sleep(0.5)  # Debounce delay
+
+        time.sleep(0.1)  # Small delay to reduce CPU usage
 
 except KeyboardInterrupt:
     print("Program interrupted!")
