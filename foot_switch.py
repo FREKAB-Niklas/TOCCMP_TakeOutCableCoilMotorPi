@@ -38,6 +38,7 @@ def check_double_press(button_pin, max_time=0.5):
     while time.time() - first_press < max_time:
         if GPIO.input(button_pin) == GPIO.LOW:
             return True
+        time.sleep(0.01)
     return False
 
 try:
@@ -54,6 +55,9 @@ try:
         print("Waiting for button press...")
         while GPIO.input(START_BUTTON) == GPIO.HIGH:
             time.sleep(0.01)
+        
+        print("Start button pressed. Waiting to check for double press...")
+        time.sleep(0.1)  # Wait a bit to check for double press
         
         if check_double_press(START_BUTTON):
             print("Double press detected. Performing reset sequence.")
