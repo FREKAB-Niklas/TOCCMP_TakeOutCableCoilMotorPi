@@ -98,11 +98,11 @@ try:
             
         else:
             print("Short press detected. Moving Motor 1 forward 1000 steps.")
-            GPIO.output(ENABLE_PIN_M2, GPIO.HIGH)  # Enable the motor
+            GPIO.output(ENABLE_PIN_M1, GPIO.HIGH)  # Enable the motor
             move_motor_steps(1000, GPIO.HIGH, STEP_PIN_M1, DIR_PIN_M1, DELAY_M1)
         
         print("Sequence completed. Waiting for next button press.")
-        GPIO.output(ENABLE_PIN_M2, GPIO.LOW)  # Ensure motor is disabled
+        GPIO.output(ENABLE_PIN_M1, GPIO.LOW)  # Ensure motor is disabled
         # Wait for button release
         while GPIO.input(START_BUTTON) == GPIO.LOW:
             time.sleep(0.1)
