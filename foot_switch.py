@@ -42,8 +42,6 @@ def reset_motor_driver():
 
 def move_motor_steps(steps, direction, step_pin, dir_pin, delay):
     try:
-        GPIO.output(ENABLE_PIN_M2, GPIO.HIGH)  # Enable the motor (LOW is enable for most drivers)
-        GPIO.output(ENABLE_PIN_M1, GPIO.LOW)  # Disable the motor (LOW is enable for most drivers)
         print(f"Motor enabled. Moving {'forward' if direction == GPIO.HIGH else 'backward'} for {steps} steps.")
         
         GPIO.output(dir_pin, direction)
@@ -100,10 +98,11 @@ try:
             
         else:
             print("Short press detected. Moving Motor 1 forward 1000 steps.")
+            GPIO.output(ENABLE_PIN_M1, GPIO.HIGH)  # Enable the motor
             move_motor_steps(1000, GPIO.HIGH, STEP_PIN_M1, DIR_PIN_M1, DELAY_M1)
         
         print("Sequence completed. Waiting for next button press.")
-        
+        GPIO.output(ENABLE_PIN_M1, GPIO.LOW)  # Ensure motor is disabled
         # Wait for button release
         while GPIO.input(START_BUTTON) == GPIO.LOW:
             time.sleep(0.1)
@@ -113,5 +112,6 @@ except KeyboardInterrupt:
 
 finally:
     GPIO.output(ENABLE_PIN_M2, GPIO.LOW)  # Ensure motor is disabled
+    GPIO.output(ENABLE_PIN_M1, GPIO.LOW)  # Ensure motor is disabled
     GPIO.cleanup()
     print("GPIO cleanup done.")
