@@ -42,8 +42,8 @@ def reset_motor_driver():
 
 def move_motor_steps(steps, direction, step_pin, dir_pin, delay):
     try:
-        GPIO.output(ENABLE_PIN_M1, GPIO.HIGH)  # Enable the motor (LOW is enable for most drivers)
-        GPIO.output(ENABLE_PIN_M2, GPIO.LOW)  # Disable the motor (LOW is enable for most drivers)
+        GPIO.output(ENABLE_PIN_M2, GPIO.HIGH)  # Enable the motor (LOW is enable for most drivers)
+        GPIO.output(ENABLE_PIN_M1, GPIO.LOW)  # Disable the motor (LOW is enable for most drivers)
         print(f"Motor enabled. Moving {'forward' if direction == GPIO.HIGH else 'backward'} for {steps} steps.")
         
         GPIO.output(dir_pin, direction)
@@ -58,7 +58,7 @@ def move_motor_steps(steps, direction, step_pin, dir_pin, delay):
         print(f"Error during motor movement: {e}")
         reset_motor_driver()
     finally:
-        GPIO.output(ENABLE_PIN_M1, GPIO.LOW)  # Disable the motor
+        GPIO.output(ENABLE_PIN_M2, GPIO.LOW)  # Disable the motor
         print("Motor disabled.")
 
 def check_long_press(button_pin, duration=3):
