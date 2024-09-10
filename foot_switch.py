@@ -83,7 +83,7 @@ try:
         print("Start button pressed. Checking for long press...")
         if check_long_press(START_BUTTON):
             print("Long press detected. Running Motor 2 until stop button is pressed.")
-            GPIO.output(ENABLE_PIN_M2, GPIO.HIGH)  # Enable the motor
+            GPIO.output(ENABLE_PIN_M1, GPIO.HIGH)  # Enable the motor
             try:
                 while GPIO.input(STOP_BUTTON) == GPIO.HIGH:
                     move_motor_steps(1, GPIO.HIGH, STEP_PIN_M2, DIR_PIN_M2, DELAY_M2)
@@ -94,15 +94,15 @@ try:
                 print(f"Error during M2 operation: {e}")
                 reset_motor_driver()
             finally:
-                GPIO.output(ENABLE_PIN_M2, GPIO.LOW)  # Disable the motor
+                GPIO.output(ENABLE_PIN_M1, GPIO.LOW)  # Disable the motor
             
         else:
             print("Short press detected. Moving Motor 1 forward 1000 steps.")
-            GPIO.output(ENABLE_PIN_M1, GPIO.HIGH)  # Enable the motor
+            GPIO.output(ENABLE_PIN_M2, GPIO.HIGH)  # Enable the motor
             move_motor_steps(1000, GPIO.HIGH, STEP_PIN_M1, DIR_PIN_M1, DELAY_M1)
         
         print("Sequence completed. Waiting for next button press.")
-        GPIO.output(ENABLE_PIN_M1, GPIO.LOW)  # Ensure motor is disabled
+        GPIO.output(ENABLE_PIN_M2, GPIO.LOW)  # Ensure motor is disabled
         # Wait for button release
         while GPIO.input(START_BUTTON) == GPIO.LOW:
             time.sleep(0.1)
