@@ -26,11 +26,11 @@ motor_running = False
 
 def reset_motor_driver():
     print("Resetting motor driver...")
-    GPIO.output(ENABLE_PIN, GPIO.HIGH)
+    GPIO.output(ENABLE_PIN, GPIO.LOW)  # Disable
     time.sleep(0.1)
-    GPIO.output(ENABLE_PIN, GPIO.LOW)
+    GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Enable
     time.sleep(0.1)
-    GPIO.output(ENABLE_PIN, GPIO.HIGH)
+    GPIO.output(ENABLE_PIN, GPIO.LOW)  # Disable
     print("Motor driver reset complete.")
 
 def run_motor(direction):
@@ -45,7 +45,7 @@ def run_motor(direction):
 def stop_motor():
     global motor_running
     motor_running = False
-    GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Disable the motor
+    GPIO.output(ENABLE_PIN, GPIO.LOW)  # Disable the motor
     print("Motor stopped")
 
 def check_buttons():
@@ -54,9 +54,9 @@ def check_buttons():
         if GPIO.input(START_BUTTON) == GPIO.LOW and not motor_running:
             print("Start button pressed. Running motor forward.")
             motor_running = True
-            GPIO.output(ENABLE_PIN, GPIO.LOW)  # Enable the motor
+            GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Enable the motor
             run_motor(GPIO.HIGH)  # Run forward
-            GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Disable the motor when button is released
+            GPIO.output(ENABLE_PIN, GPIO.LOW)  # Disable the motor when button is released
             motor_running = False
             print("Start button released. Motor stopped.")
         elif GPIO.input(STOP_BUTTON) == GPIO.LOW:
@@ -84,6 +84,6 @@ except KeyboardInterrupt:
 except Exception as e:
     print(f"An error occurred: {e}")
 finally:
-    GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Ensure motor is disabled on program exit
+    GPIO.output(ENABLE_PIN, GPIO.LOW)  # Ensure motor is disabled on program exit
     GPIO.cleanup()
     print("GPIO cleanup done.")
