@@ -11,7 +11,7 @@ START_BUTTON = 5  # Start button
 STOP_BUTTON = 6   # Stop button
 
 # Motor delay (in seconds)
-DELAY = 0.0001  # Adjust this value for Motor speed
+DELAY = 0.0005  # Adjust this value for Motor speed
 
 # GPIO setup
 GPIO.setmode(GPIO.BCM)
