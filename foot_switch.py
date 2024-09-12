@@ -1,117 +1,89 @@
 import time
 import RPi.GPIO as GPIO
+import threading
 
 # GPIO pin setup
-DIR_PIN_M1 = 13   # Direction pin for Motor 1
-STEP_PIN_M1 = 19  # Step pin for Motor 1
-DIR_PIN_M2 = 24   # Direction pin for Motor 2
-STEP_PIN_M2 = 18  # Step pin for Motor 2
-ENABLE_PIN_M2 = 12   # Enable pin
-ENABLE_PIN_M1 = 4   # Enable pin
+DIR_PIN = 13   # Direction pin for Motor
+STEP_PIN = 19  # Step pin for Motor
+ENABLE_PIN = 12   # Enable pin
 
 START_BUTTON = 5  # Start button
 STOP_BUTTON = 6   # Stop button
 
-# Motor-specific delays (in seconds)
-DELAY_M1 = 0.005  # Adjust this value for Motor 1 speed
-DELAY_M2 = 0.001   # Adjust this value for Motor 2 speed
+# Motor delay (in seconds)
+DELAY = 0.0001  # Adjust this value for Motor speed
 
 # GPIO setup
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(DIR_PIN_M1, GPIO.OUT)
-GPIO.setup(STEP_PIN_M1, GPIO.OUT)
-GPIO.setup(DIR_PIN_M2, GPIO.OUT)
-GPIO.setup(STEP_PIN_M2, GPIO.OUT)
-GPIO.setup(ENABLE_PIN_M2, GPIO.OUT)
-GPIO.setup(ENABLE_PIN_M1, GPIO.OUT)
+GPIO.setup(DIR_PIN, GPIO.OUT)
+GPIO.setup(STEP_PIN, GPIO.OUT)
+GPIO.setup(ENABLE_PIN, GPIO.OUT)
 GPIO.setup(START_BUTTON, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(STOP_BUTTON, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
+# Global variables
+motor_running = False
+
 def reset_motor_driver():
     print("Resetting motor driver...")
-    GPIO.output(ENABLE_PIN_M2, GPIO.LOW)
-    GPIO.output(ENABLE_PIN_M1, GPIO.LOW)
+    GPIO.output(ENABLE_PIN, GPIO.HIGH)
     time.sleep(0.1)
-    GPIO.output(ENABLE_PIN_M2, GPIO.HIGH)
-    GPIO.output(ENABLE_PIN_M1, GPIO.HIGH)
+    GPIO.output(ENABLE_PIN, GPIO.LOW)
     time.sleep(0.1)
-    GPIO.output(ENABLE_PIN_M2, GPIO.LOW)
-    GPIO.output(ENABLE_PIN_M1, GPIO.LOW)
-    time.sleep(0.1) 
-    print("Motor driverS reset complete.")
+    GPIO.output(ENABLE_PIN, GPIO.HIGH)
+    print("Motor driver reset complete.")
 
-def move_motor_steps(steps, direction, step_pin, dir_pin, delay):
-    try:
-        print(f"Motor enabled. Moving {'forward' if direction == GPIO.HIGH else 'backward'} for {steps} steps.")
-        
-        GPIO.output(dir_pin, direction)
-        for _ in range(steps):
-            GPIO.output(step_pin, GPIO.HIGH)
-            time.sleep(delay)
-            GPIO.output(step_pin, GPIO.LOW)
-            time.sleep(delay)
-        
-        print("Movement completed.")
-    except Exception as e:
-        print(f"Error during motor movement: {e}")
-        reset_motor_driver()
-    finally:
-        GPIO.output(ENABLE_PIN_M2, GPIO.LOW)  # Disable the motor
-        print("Motor disabled.")
+def run_motor(direction):
+    global motor_running
+    GPIO.output(DIR_PIN, direction)
+    while motor_running and GPIO.input(START_BUTTON) == GPIO.LOW:
+        GPIO.output(STEP_PIN, GPIO.HIGH)
+        time.sleep(DELAY)
+        GPIO.output(STEP_PIN, GPIO.LOW)
+        time.sleep(DELAY)
 
-def check_long_press(button_pin, duration=3):
-    start_time = time.time()
-    while GPIO.input(button_pin) == GPIO.LOW:
-        if time.time() - start_time >= duration:
-            return True
-        time.sleep(0.1)
-    return False
+def stop_motor():
+    global motor_running
+    motor_running = False
+    GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Disable the motor
+    print("Motor stopped")
+
+def check_buttons():
+    global motor_running
+    while True:
+        if GPIO.input(START_BUTTON) == GPIO.LOW and not motor_running:
+            print("Start button pressed. Running motor forward.")
+            motor_running = True
+            GPIO.output(ENABLE_PIN, GPIO.LOW)  # Enable the motor
+            run_motor(GPIO.HIGH)  # Run forward
+            GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Disable the motor when button is released
+            motor_running = False
+            print("Start button released. Motor stopped.")
+        elif GPIO.input(STOP_BUTTON) == GPIO.LOW:
+            stop_motor()
+        time.sleep(0.01)  # Small delay to prevent excessive CPU usage
 
 try:
-    print("Press the start button (GPIO 5) briefly to run Motor 1 for 1000 steps forward.")
-    print("Hold the start button for 3 seconds to trigger Motor 2 reset function.")
-    print("Press the stop button (GPIO 6) to stop Motor 2 during long press function.")
+    print("Press the start button (GPIO 5) to run the motor forward.")
+    print("Press the stop button (GPIO 6) to stop the motor.")
     print("Press Ctrl+C to exit.")
 
     reset_motor_driver()  # Reset the motor driver at the start
 
-    while True:
-        print("Waiting for button press...")
-        while GPIO.input(START_BUTTON) == GPIO.HIGH:
-            time.sleep(0.01)
-        
-        print("Start button pressed. Checking for long press...")
-        if check_long_press(START_BUTTON):
-            print("Long press detected. Running Motor 2 until stop button is pressed.")
-            GPIO.output(ENABLE_PIN_M1, GPIO.HIGH)  # Enable the motor
-            try:
-                while GPIO.input(STOP_BUTTON) == GPIO.HIGH:
-                    move_motor_steps(1, GPIO.HIGH, STEP_PIN_M2, DIR_PIN_M2, DELAY_M2)
+    # Start button checking in a separate thread
+    button_thread = threading.Thread(target=check_buttons)
+    button_thread.daemon = True
+    button_thread.start()
 
-                print("Stop button pressed. Moving M2 backward 1000 steps.")
-                move_motor_steps(1000, GPIO.LOW, STEP_PIN_M2, DIR_PIN_M2, DELAY_M2)
-            except Exception as e:
-                print(f"Error during M2 operation: {e}")
-                reset_motor_driver()
-            finally:
-                GPIO.output(ENABLE_PIN_M1, GPIO.LOW)  # Disable the motor
-            
-        else:
-            print("Short press detected. Moving Motor 1 forward 1000 steps.")
-            GPIO.output(ENABLE_PIN_M2, GPIO.HIGH)  # Enable the motor
-            move_motor_steps(1000, GPIO.HIGH, STEP_PIN_M1, DIR_PIN_M1, DELAY_M1)
-        
-        print("Sequence completed. Waiting for next button press.")
-        GPIO.output(ENABLE_PIN_M2, GPIO.LOW)  # Ensure motor is disabled
-        # Wait for button release
-        while GPIO.input(START_BUTTON) == GPIO.LOW:
-            time.sleep(0.1)
+    # Main loop
+    while True:
+        time.sleep(0.1)  # Keep the main thread alive
 
 except KeyboardInterrupt:
-    print("Program interrupted!")
-
+    print("Program interrupted by user")
+except Exception as e:
+    print(f"An error occurred: {e}")
 finally:
-    GPIO.output(ENABLE_PIN_M2, GPIO.LOW)  # Ensure motor is disabled
-    GPIO.output(ENABLE_PIN_M1, GPIO.LOW)  # Ensure motor is disabled
+    GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Ensure motor is disabled on program exit
     GPIO.cleanup()
     print("GPIO cleanup done.")
