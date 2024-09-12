@@ -26,17 +26,17 @@ motor_running = False
 
 def reset_motor_driver():
     print("Resetting motor driver...")
-    GPIO.output(ENABLE_PIN, GPIO.HIGH)
-    time.sleep(0.1)
     GPIO.output(ENABLE_PIN, GPIO.LOW)
     time.sleep(0.1)
     GPIO.output(ENABLE_PIN, GPIO.HIGH)
+    time.sleep(0.1)
+    GPIO.output(ENABLE_PIN, GPIO.LOW)
     print("Motor driver reset complete.")
 
 def run_motor(direction):
     global motor_running
     GPIO.output(DIR_PIN, direction)
-    while motor_running and GPIO.input(START_BUTTON) == GPIO.LOW:
+    while motor_running and GPIO.input(START_BUTTON) == GPIO.HIGH:
         GPIO.output(STEP_PIN, GPIO.HIGH)
         time.sleep(DELAY)
         GPIO.output(STEP_PIN, GPIO.LOW)
@@ -45,13 +45,13 @@ def run_motor(direction):
 def stop_motor():
     global motor_running
     motor_running = False
-    GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Disable the motor
+    GPIO.output(ENABLE_PIN, GPIO.LOW)  # Disable the motor
     print("Motor stopped")
 
 def check_buttons():
     global motor_running
     while True:
-        if GPIO.input(START_BUTTON) == GPIO.LOW and not motor_running:
+        if GPIO.input(START_BUTTON) == GPIO.HIGH and not motor_running:
             print("Start button pressed. Running motor forward.")
             motor_running = True
             GPIO.output(ENABLE_PIN, GPIO.LOW)  # Enable the motor
@@ -59,7 +59,7 @@ def check_buttons():
             GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Disable the motor when button is released
             motor_running = False
             print("Start button released. Motor stopped.")
-        elif GPIO.input(STOP_BUTTON) == GPIO.LOW:
+        elif GPIO.input(STOP_BUTTON) == GPIO.HIGH:
             stop_motor()
         time.sleep(0.01)  # Small delay to prevent excessive CPU usage
 
@@ -84,6 +84,6 @@ except KeyboardInterrupt:
 except Exception as e:
     print(f"An error occurred: {e}")
 finally:
-    GPIO.output(ENABLE_PIN, GPIO.HIGH)  # Ensure motor is disabled on program exit
+    GPIO.output(ENABLE_PIN, GPIO.LOW)  # Ensure motor is disabled on program exit
     GPIO.cleanup()
     print("GPIO cleanup done.")
